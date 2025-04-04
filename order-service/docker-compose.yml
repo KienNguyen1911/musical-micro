@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  order_service:
+    build: .
+    container_name: order_service
+    depends_on:
+      postgres_order:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_order:5432/food-order-orders
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: KienNguyen@1911
+    ports:
+      - "8080:8080"
+
+  postgres_order:
+    image: postgres:15
+    container_name: postgres_order
+    restart: always
+    environment:
+      POSTGRES_DB: food-order-orders
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: KienNguyen@1911
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data_order:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_order:  

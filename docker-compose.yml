@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - restaurant-service
+      - order-service
+      - payment-service
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=your_jwt_secret_key_here
+      - RESTAURANT_SERVICE_URL=http://restaurant-service:8000
+      - ORDER_SERVICE_URL=http://order-service:8080
+      - PAYMENT_SERVICE_URL=http://payment-service:8081
+
+  restaurant-service:
+    build: ./restaurant-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_DATABASE=restaurants
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_DATABASE=orders
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_DATABASE=payments
+
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: restaurants
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data: 
